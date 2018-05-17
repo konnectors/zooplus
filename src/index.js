@@ -93,7 +93,8 @@ function getBill($el) {
     date: getDate($el),
     amount,
     currency,
-    fileurl: getInvoiceURL($el)
+    fileurl: getInvoiceURL($el),
+    filename: getFilename($el)
   }
 }
 
@@ -143,4 +144,21 @@ function getInvoiceURL($el) {
     baseUrl + $el.find('a[href^="/account/orders/invoice"]').attr('href')
 
   return invoiceURL
+}
+
+function getInvoiceNumber($el) {
+  const invoiceNumber = $el
+    .find('.col-xs-12.col-md-4 a')
+    .text()
+    .trim()
+
+  return invoiceNumber
+}
+
+function getFilename($el) {
+  const dateISO = getDate($el).toISOString()
+  const amount = `${getAmountAndCurrency($el).amount}`.replace('.', '-')
+  const invoiceNumber = getInvoiceNumber($el)
+
+  return `${dateISO}_${amount}_${invoiceNumber}.pdf`
 }
