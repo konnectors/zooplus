@@ -30,6 +30,8 @@ async function start(fields) {
   log('info', 'Fetch years URLs')
   const $ = await request(`${baseUrl}/account/orders/overview`)
   const yearsURLs = getYearsURLs($)
+  const bills = await getAllBills(yearsURLs)
+  log('info', bills)
 
   return Promise.resolve()
 }
@@ -62,4 +64,56 @@ function getYearsURLs($) {
     .get()
 
   return years
+}
+
+function getAllBills(yearsURLs) {
+  return Promise.all(yearsURLs.map(getYearBills)).then(billsByYears =>
+    billsByYears.reduce((bills, year) => [...bills, ...year], [])
+  )
+}
+
+function getYearBills(yearURL) {
+  return request(yearURL).then($ => {
+    const $rows = $('.order-overview-table__row')
+    const bills = $rows.map((i, el) => getBill($(el))).get()
+
+    return bills
+  })
+}
+
+function getBill($el) {
+  const rawDate = $el
+    .find('.col-xs-12.col-md-3:not(.keep-text-right) p')
+    .text()
+    .trim()
+
+  const rawAmount = $el
+    .find('.col-xs-12.col-md-3.keep-text-right p')
+    .text()
+    .trim()
+
+  return {
+    vendor: 'ZooPlus',
+    date: formatDate(rawDate),
+    amount: formatAmount(rawAmount),
+    currency: getCurrency(rawAmount)
+  }
+}
+
+function formatAmount(rawAmount) {
+  const amount = parseFloat(rawAmount.slice(0, -2).replace(',', '.'))
+
+  return amount
+}
+
+function getCurrency(rawAmount) {
+  return rawAmount.slice(-1)
+}
+
+function formatDate(rawDate) {
+  const day = parseInt(rawDate.substr(0, 2))
+  const month = parseInt(rawDate.substr(3, 2)) - 1
+  const year = parseInt(`20${rawDate.substr(-2)}`)
+
+  return new Date(year, month, day)
 }
