@@ -1,16 +1,16 @@
 {
   "version": "1.0.0",
-  "name": "Connector template",
+  "name": "ZooPlus",
   "type": "konnector",
   "language": "node",
   "icon": "icon.png",
-  "slug": "template",
+  "slug": "zooplus",
   "source": "git://github.com/konnectors/cozy-konnector-template.git",
   "editor": "Cozy",
-  "vendor_link": "Link to the target website",
-  "categories": ["other"],
+  "vendor_link": "http://www.zooplus.fr/",
+  "categories": ["shopping"],
   "fields": {
-    "login": {
+    "email": {
       "type": "text"
     },
     "password": {
@@ -49,8 +49,8 @@
   "langs": ["fr", "en"],
   "locales": {
     "fr": {
-      "short_description": "Template de connecteur",
-      "long_description": "Ce template récupère une liste de livres sur un site de scraping",
+      "short_description": "Récupère vos factures ZooPlus",
+      "long_description": "Récupère vos factures ZooPlus",
       "permissions": {
         "bank operations": {
           "description": "Utilisé pour relier les factures à des operations bancaires"
@@ -67,8 +67,8 @@
       }
     },
     "en": {
-      "short_description": "Connector template",
-      "long_description": "This template fetches a list of books from a scraping website",
+      "short_description": "Fetch your ZooPlus bills",
+      "long_description": "Fetch your ZooPlus bills",
       "permissions": {
         "bank operations": {
           "description": "Required to link bank operations to bills"
