@@ -26,13 +26,18 @@ module.exports = new BaseKonnector(start)
 async function start(fields) {
   log('info', 'Authenticating ...')
   await authenticate(fields.email, fields.password)
+
   log('info', 'Fetch years URLs')
   const $ = await request(`${baseUrl}/account/orders/overview`)
   const yearsURLs = getYearsURLs($)
-  const bills = await getAllBills(yearsURLs)
-  log('info', bills)
 
-  return Promise.resolve()
+  log('info', 'Get bills')
+  const bills = await getAllBills(yearsURLs)
+
+  log('info', 'Save bills')
+  return saveBills(bills, fields.folderPath, {
+    identifiers: ['zooplus']
+  })
 }
 
 function authenticate(email, password) {
@@ -88,7 +93,7 @@ function getBill($el) {
     date: getDate($el),
     amount,
     currency,
-    invoiceURL: getInvoiceURL($el)
+    fileurl: getInvoiceURL($el)
   }
 }
 
