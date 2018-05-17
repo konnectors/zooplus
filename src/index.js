@@ -2,7 +2,6 @@ const {
   BaseKonnector,
   requestFactory,
   signin,
-  scrape,
   saveBills,
   log
 } = require('cozy-konnector-libs')
@@ -82,21 +81,14 @@ function getYearBills(yearURL) {
 }
 
 function getBill($el) {
-  const rawDate = $el
-    .find('.col-xs-12.col-md-3:not(.keep-text-right) p')
-    .text()
-    .trim()
-
-  const rawAmount = $el
-    .find('.col-xs-12.col-md-3.keep-text-right p')
-    .text()
-    .trim()
+  const { amount, currency } = getAmountAndCurrency($el)
 
   return {
     vendor: 'ZooPlus',
-    date: formatDate(rawDate),
-    amount: formatAmount(rawAmount),
-    currency: getCurrency(rawAmount)
+    date: getDate($el),
+    amount,
+    currency,
+    invoiceURL: getInvoiceURL($el)
   }
 }
 
@@ -110,10 +102,40 @@ function getCurrency(rawAmount) {
   return rawAmount.slice(-1)
 }
 
+function getAmountAndCurrency($el) {
+  const rawAmount = $el
+    .find('.col-xs-12.col-md-3.keep-text-right p')
+    .text()
+    .trim()
+
+  return {
+    amount: formatAmount(rawAmount),
+    currency: getCurrency(rawAmount)
+  }
+}
+
+function getDate($el) {
+  const rawDate = $el
+    .find('.col-xs-12.col-md-3:not(.keep-text-right) p')
+    .text()
+    .trim()
+
+  const date = formatDate(rawDate)
+
+  return date
+}
+
 function formatDate(rawDate) {
   const day = parseInt(rawDate.substr(0, 2))
   const month = parseInt(rawDate.substr(3, 2)) - 1
   const year = parseInt(`20${rawDate.substr(-2)}`)
 
   return new Date(year, month, day)
+}
+
+function getInvoiceURL($el) {
+  const invoiceURL =
+    baseUrl + $el.find('a[href^="/account/orders/invoice"]').attr('href')
+
+  return invoiceURL
 }
