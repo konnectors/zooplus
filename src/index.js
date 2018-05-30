@@ -46,15 +46,17 @@ function authenticate(email, password) {
     formSelector: 'form[name="loginForm"]',
     formData: { email, password },
     validate: (statusCode, $) => {
-      if ($(`.logout__btn`).length === 1) {
+      const errInForm = $('.form__field.ERROR .error_message')
+      const errAlert = $('.alert-danger b').text()
+
+      if (!errAlert && errInForm.length === 0) {
         return true
-      } else {
-        const errors = $('.form__field.ERROR .error__message').map((i, el) => {
-          return $(el).text()
-        })
-        log('info', errors)
-        return false
       }
+
+      let errors = errInForm.map((i, el) => $(el).text())
+      errors = Array.from(errors).concat(errAlert)
+      log('info', errors)
+      return false
     }
   })
 }
