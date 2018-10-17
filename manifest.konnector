@@ -92,5 +92,6 @@
       }
     }
   },
-  "banksTransactionRegExp": "\\bzooplus\\b"
+  "banksTransactionRegExp": "\\bzooplus\\b",
+  "manifest_version": "2"
 }
