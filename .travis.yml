@@ -1,2 +1,41 @@
-# dont run travis on build branches
-script: true
+language: node_js
+node_js:
+- '8'
+env:
+  global:
+  - GH_USER_EMAIL="travis@example.org"
+  - GH_USER_NAME="cozy-bot"
+  - DEPLOY_REPOSITORY="git@github.com:konnectors/zooplus.git"
+  - secure: VfA7xyHBmqEqUyGAJrE7mG27tebSl/k1YcVZh4v2gnecbUuMirNKnI8pyyrefsfHwRX+SPw/qnXgAVFPm70mU7/MljDnVMx3Snq3kFpNUWtnSsj1V/AAQu/a8UhxMaZ01Mt8cYum0F77AEYPvmJmIDTleciNvNueMCszp4MMVdJ2yG6/0ZqYY9tVl/AT1Gnv87jsynNIWkDuRBkK1tE9euI6J2Mg73LCtv50hnwP4xS4U/hPOYiRzvxkERXy3TR+Yr+QVdBlqmirzVBvMU/kbdeYAClm0vPscBnq7s3StPimOhB2XT2PWCk/FpgTOfwJrATi5lYQcg4r0ouVtNuQ6VV3BF4KGxgZo6MEMQpJ9vB090uSz8F8KdLefbjCTBF80czc5roeYX+fkLIOQaUpo/tPvmTshcXULbv8igyLuOcrsTIZhXP6VSv2LlTQr0OsUsnvQ0+3uq3SMoAFHzg9h6gnQqEI5U+tOfeHoxcuSBQde2RJ8PUmvc3UFK7cr62bQilTAgi1fGABSZ1eFyEKl4Yx+1FvUzm2AcTGfOVAlhnqsscZi4nxKPKXOR8D0iMIgWjyjraoL5vt6EcWJb0mqxeI8GeJarMMwqVF/3swHK6xLB+5yIFAnkjWttmTqBClHvfc/5R+XmBlcQ+tiX54MhAU6RzLZFH5xXXs1Vmm/TA=
+cache:
+  yarn: true
+  directories:
+  - node_modules
+branches:
+  except:
+  - build
+  - build-debug
+script:
+- yarn lint
+- yarn build
+- yarn run check
+deploy:
+- provider: script
+  skip-cleanup: true
+  script: DEPLOY_BRANCH=build yarn deploy && yarn cozyPublish
+  on:
+    branch: master
+- provider: script
+  skip-cleanup: true
+  script: DEPLOY_BRANCH=build yarn deploy && yarn cozyPublish
+  on:
+    tags: true
+before_install:
+- openssl aes-256-cbc -K $encrypted_0f33349e9d8d_key -iv $encrypted_0f33349e9d8d_iv
+  -in github_deploy_key.enc -out /tmp/github_deploy_key -d
+- eval "$(ssh-agent -s)"
+- chmod 600 /tmp/github_deploy_key
+- ssh-add /tmp/github_deploy_key
+after_deploy:
+- rm /tmp/github_deploy_key
+- ssh-add -D

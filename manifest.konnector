@@ -1,5 +1,5 @@
 {
-  "version": "1.1.0",
+  "version": "1.2.0",
   "name": "ZooPlus",
   "type": "konnector",
   "language": "node",
@@ -92,5 +92,6 @@
       }
     }
   },
-  "banksTransactionRegExp": "\\bzooplus\\b"
+  "banksTransactionRegExp": "\\bzooplus\\b",
+  "manifest_version": "2"
 }
