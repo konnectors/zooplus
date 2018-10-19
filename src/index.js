@@ -81,7 +81,10 @@ function getAllBills(yearsURLs) {
 function getYearBills(yearURL) {
   return request(yearURL).then($ => {
     const $rows = $('.order-overview-table__row')
-    const bills = $rows.map((i, el) => getBill($(el))).get()
+    const bills = $rows
+      .map((i, el) => getBill($(el)))
+      .filter((i, el) => Boolean(el))
+      .get()
 
     return bills
   })
@@ -89,6 +92,8 @@ function getYearBills(yearURL) {
 
 function getBill($el) {
   const { amount, currency } = getAmountAndCurrency($el)
+
+  if (getCommandState($el) !== 'Commande expédiée') return false
 
   return {
     vendor: 'ZooPlus',
@@ -108,6 +113,13 @@ function formatAmount(rawAmount) {
 
 function getCurrency(rawAmount) {
   return rawAmount.slice(-1)
+}
+
+function getCommandState($el) {
+  return $el
+    .find('.markMeIfFailed')
+    .text()
+    .trim()
 }
 
 function getAmountAndCurrency($el) {
