@@ -16,7 +16,10 @@ const request = requestFactory({
   // default in cozy-konnector-libs
   json: false,
   // this allows request-promise to keep cookies between requests
-  jar: true
+  jar: true,
+  headers: {
+    Accept: 'text/html,application/xhtml+xml,application/xml;q=0.9,*/*;q=0.8'
+  }
 })
 
 const baseUrl = 'https://www.zooplus.fr'
@@ -42,6 +45,7 @@ async function start(fields) {
 
 function authenticate(email, password) {
   return signin({
+    requestInstance: request,
     url: `https://www.zooplus.fr/account`,
     formSelector: 'form[name="loginForm"]',
     formData: { email, password },
