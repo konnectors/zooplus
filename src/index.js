@@ -22,7 +22,7 @@ const request = requestFactory({
   }
 })
 
-const baseUrl = 'https://www.zooplus.fr'
+const baseUrl = 'https://www.bitiba.fr'
 
 module.exports = new BaseKonnector(start)
 
@@ -39,14 +39,14 @@ async function start(fields) {
 
   log('info', 'Save bills')
   return saveBills(bills, fields.folderPath, {
-    identifiers: ['zooplus']
+    linkBankOperations: false
   })
 }
 
 function authenticate(email, password) {
   return signin({
     requestInstance: request,
-    url: `https://www.zooplus.fr/account`,
+    url: `https://www.bitiba.fr/account`,
     formSelector: 'form[name="loginForm"]',
     formData: { email, password },
     validate: (statusCode, $) => {
