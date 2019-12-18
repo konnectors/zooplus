@@ -7,15 +7,9 @@ const {
 } = require('cozy-konnector-libs')
 const cheerio = require('cheerio')
 const request = requestFactory({
-  // the debug mode shows all the details about http request and responses. Very usefull for
-  // debugging but very verbose. That is why it is commented out by default
   // debug: true,
-  // activates [cheerio](https://cheerio.js.org/) parsing on each page
   cheerio: true,
-  // If cheerio is activated do not forget to deactivate json parsing (which is activated by
-  // default in cozy-konnector-libs
   json: false,
-  // this allows request-promise to keep cookies between requests
   jar: true,
   headers: {
     Accept: 'text/html,application/xhtml+xml,application/xml;q=0.9,*/*;q=0.8'
@@ -39,7 +33,10 @@ async function start(fields) {
 
   log('info', 'Save bills')
   return saveBills(bills, fields.folderPath, {
-    linkBankOperations: false
+    linkBankOperations: false,
+    sourceAccount: this.accountId,
+    sourceAccountIdentifier: fields.email,
+    fileIdAttributes: ['vendorRef']
   })
 }
 
@@ -105,7 +102,8 @@ function getBill($el) {
     amount,
     currency,
     fileurl: getInvoiceURL($el),
-    filename: getFilename($el)
+    filename: getFilename($el),
+    vendorRef: getInvoiceNumber($el)
   }
 }
 
