@@ -1,0 +1,41 @@
+language: node_js
+node_js:
+- '12'
+env:
+  global:
+  - DEPLOY_REPOSITORY="git@github.com:konnectors/zooplus.git"
+  # REGISTRY_TOKEN(editor=cozy, app=zooplus)
+  - secure: VfA7xyHBmqEqUyGAJrE7mG27tebSl/k1YcVZh4v2gnecbUuMirNKnI8pyyrefsfHwRX+SPw/qnXgAVFPm70mU7/MljDnVMx3Snq3kFpNUWtnSsj1V/AAQu/a8UhxMaZ01Mt8cYum0F77AEYPvmJmIDTleciNvNueMCszp4MMVdJ2yG6/0ZqYY9tVl/AT1Gnv87jsynNIWkDuRBkK1tE9euI6J2Mg73LCtv50hnwP4xS4U/hPOYiRzvxkERXy3TR+Yr+QVdBlqmirzVBvMU/kbdeYAClm0vPscBnq7s3StPimOhB2XT2PWCk/FpgTOfwJrATi5lYQcg4r0ouVtNuQ6VV3BF4KGxgZo6MEMQpJ9vB090uSz8F8KdLefbjCTBF80czc5roeYX+fkLIOQaUpo/tPvmTshcXULbv8igyLuOcrsTIZhXP6VSv2LlTQr0OsUsnvQ0+3uq3SMoAFHzg9h6gnQqEI5U+tOfeHoxcuSBQde2RJ8PUmvc3UFK7cr62bQilTAgi1fGABSZ1eFyEKl4Yx+1FvUzm2AcTGfOVAlhnqsscZi4nxKPKXOR8D0iMIgWjyjraoL5vt6EcWJb0mqxeI8GeJarMMwqVF/3swHK6xLB+5yIFAnkjWttmTqBClHvfc/5R+XmBlcQ+tiX54MhAU6RzLZFH5xXXs1Vmm/TA=
+  # MATTERMOST_HOOK_URL
+  - secure: hZu7emwNnSJdsE4VikdeZ1stp5IinWhEJhEgdDthJx3SY1vuxFvMx1QyCObM2Vf+siES3uo+vc7xFoSQjmmt5cQVy5v9T8Xv6HhKOSV9k4W6jVuDeWNyX38bIeA8clPSvKsHyNnsPkuXNIP33F97LzyY+0zI0C2EYeVhO/jFyqQLeFP/R24sQaRXghAiGZAcnV+Q0qdiAv4BBVBu7Yp1MRs+O8TvPRui3Wsk5/Pr9CYvsEOg2X5+3m5k5TajrNl982GjdZkroWe6ck0hYXlmwZ6xRgnYbuafI4+Rx4yqNDUcFRKrYVQyqVLnnZeoSry1vntpfXYEb9GsrLQKOqR+98fz1SoQWf/McgcvgFR6JopmsKJsGlQpc6A0CBMKliqEFQ9k1NdGaAP9d+q7bvernNBCOgGvg6U5RbVobujH/9BPjiZKFoxWNijGuc4+9o3SAXVrgMs5/g4u/FN1iKKfZG2pHdBRXA/dLY7+uONTb2E/NXfuaoe1TGJQ7hGYzCp4nb+hlJU4+RDwH2BINtHd5WI1PIiJUioBHEV/qfz71cRG1YSGIaikDCtdZlljF1ms1FowiNUUTcH0BCnEVBPwEETwzcgou1sjaYQKS7ebk13/ShQXFZXlL8Vz2JQc3ZramHNsuYSQYnu9+q/fDXGYX6FgIqOTu6DdLTVrf0FphL8=
+cache:
+  yarn: true
+  directories:
+  - node_modules
+branches:
+  except:
+  - build
+  - build-debug
+script:
+- yarn lint
+- yarn build
+deploy:
+- provider: script
+  skip-cleanup: true
+  script: DEPLOY_BRANCH=build yarn deploy && yarn cozyPublish
+  on:
+    branch: master
+- provider: script
+  skip-cleanup: true
+  script: DEPLOY_BRANCH=build yarn deploy && yarn cozyPublish --postpublish mattermost
+  on:
+    tags: true
+before_install:
+- openssl aes-256-cbc -K $encrypted_0f33349e9d8d_key -iv $encrypted_0f33349e9d8d_iv
+  -in github_deploy_key.enc -out /tmp/github_deploy_key -d
+- eval "$(ssh-agent -s)"
+- chmod 600 /tmp/github_deploy_key
+- ssh-add /tmp/github_deploy_key
+after_deploy:
+- rm /tmp/github_deploy_key
+- ssh-add -D
