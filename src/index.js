@@ -16,7 +16,7 @@ const request = requestFactory({
   }
 })
 
-const baseUrl = 'https://www.bitiba.fr'
+const baseUrl = 'https://www.zooplus.fr'
 
 module.exports = new BaseKonnector(start)
 
@@ -43,7 +43,7 @@ async function start(fields) {
 function authenticate(email, password) {
   return signin({
     requestInstance: request,
-    url: `https://www.bitiba.fr/account`,
+    url: `${baseUrl}/account`,
     formSelector: 'form[name="loginForm"]',
     formData: { email, password },
     validate: (statusCode, $) => {
