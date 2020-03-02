@@ -3,7 +3,7 @@ node_js:
 - '12'
 env:
   global:
-  - DEPLOY_REPOSITORY="git@github.com:konnectors/zooplus.git"
+  - MATTERMOST_CHANNEL=publication
   # REGISTRY_TOKEN(editor=cozy, app=zooplus)
   - secure: VfA7xyHBmqEqUyGAJrE7mG27tebSl/k1YcVZh4v2gnecbUuMirNKnI8pyyrefsfHwRX+SPw/qnXgAVFPm70mU7/MljDnVMx3Snq3kFpNUWtnSsj1V/AAQu/a8UhxMaZ01Mt8cYum0F77AEYPvmJmIDTleciNvNueMCszp4MMVdJ2yG6/0ZqYY9tVl/AT1Gnv87jsynNIWkDuRBkK1tE9euI6J2Mg73LCtv50hnwP4xS4U/hPOYiRzvxkERXy3TR+Yr+QVdBlqmirzVBvMU/kbdeYAClm0vPscBnq7s3StPimOhB2XT2PWCk/FpgTOfwJrATi5lYQcg4r0ouVtNuQ6VV3BF4KGxgZo6MEMQpJ9vB090uSz8F8KdLefbjCTBF80czc5roeYX+fkLIOQaUpo/tPvmTshcXULbv8igyLuOcrsTIZhXP6VSv2LlTQr0OsUsnvQ0+3uq3SMoAFHzg9h6gnQqEI5U+tOfeHoxcuSBQde2RJ8PUmvc3UFK7cr62bQilTAgi1fGABSZ1eFyEKl4Yx+1FvUzm2AcTGfOVAlhnqsscZi4nxKPKXOR8D0iMIgWjyjraoL5vt6EcWJb0mqxeI8GeJarMMwqVF/3swHK6xLB+5yIFAnkjWttmTqBClHvfc/5R+XmBlcQ+tiX54MhAU6RzLZFH5xXXs1Vmm/TA=
   # MATTERMOST_HOOK_URL
