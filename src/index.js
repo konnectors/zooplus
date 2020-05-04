@@ -1,9 +1,8 @@
 const {
   BaseKonnector,
   requestFactory,
-  signin,
-  saveBills,
-  log
+  log,
+  errors
 } = require('cozy-konnector-libs')
 const cheerio = require('cheerio')
 const request = requestFactory({
@@ -22,7 +21,7 @@ module.exports = new BaseKonnector(start)
 
 async function start(fields) {
   log('info', 'Authenticating ...')
-  await authenticate(fields.email, fields.password)
+  await authenticate.bind(this)(fields.email, fields.password)
 
   log('info', 'Fetch years URLs')
   const $ = await request(`${baseUrl}/account/orders/overview`)
@@ -32,34 +31,58 @@ async function start(fields) {
   const bills = await getAllBills(yearsURLs)
 
   log('info', 'Save bills')
-  return saveBills(bills, fields.folderPath, {
+  return this.saveBills(bills, fields.folderPath, {
     linkBankOperations: false,
-    sourceAccount: this.accountId,
     sourceAccountIdentifier: fields.email,
     fileIdAttributes: ['vendorRef']
   })
 }
 
-function authenticate(email, password) {
-  return signin({
-    requestInstance: request,
-    url: `${baseUrl}/account`,
-    formSelector: 'form[name="loginForm"]',
-    formData: { email, password },
-    validate: (statusCode, $) => {
-      const errInForm = $('.form__field.ERROR .error_message')
-      const errAlert = $('.alert-danger b').text()
+async function authenticate(email, password) {
+  await this.deactivateAutoSuccessfulLogin()
+  await request.get(`${baseUrl}/account`)
+  const $body = await request.get('https://www.zooplus.fr/web/sso/login')
+  const actionUrlRgx = new RegExp(`"actionUrl": "(.*)"`)
+  const ssoUrl = $body
+    .html()
+    .split(`\n`)
+    .find(line => line.match(actionUrlRgx))
+    .match(actionUrlRgx)[1]
 
-      if (!errAlert && errInForm.length === 0) {
-        return true
-      }
-
-      let errors = errInForm.map((i, el) => $(el).text())
-      errors = Array.from(errors).concat(errAlert)
-      log('info', errors)
-      return false
+  const $ = await request.post(ssoUrl, {
+    form: {
+      'X-CSRF-Token': undefined,
+      username: email,
+      password: password,
+      _target8: ''
     }
   })
+
+  const isLoginSuccess = $.html().includes('LOGIN_SUCCESS')
+
+  if (!isLoginSuccess) {
+    const errorRgx = new RegExp(`"message": {"type": "error","text":"(.*)"`)
+    const errorLine = $.html()
+      .split('\n')
+      .find(line => line.match(errorRgx))
+    if (errorLine) {
+      log('error', errorLine)
+      if (
+        [
+          'keycloak.login.error.invalid_credentials',
+          'keycloak.login.error.unknown_user'
+        ].includes(errorLine.match(errorRgx)[1])
+      ) {
+        throw new Error(errors.LOGIN_FAILED)
+      } else {
+        throw new Error(errors.VENDOR_DOWN)
+      }
+    } else {
+      log('error', 'could not parse error message')
+      throw new Error(errors.VENDOR_DOWN)
+    }
+  }
+  await this.notifySuccessfulLogin()
 }
 
 function getYearsURLs($) {
